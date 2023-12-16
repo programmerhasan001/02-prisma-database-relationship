@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// every model name should be plural
+model users {
+  id Int @id @default(autoincrement())
+  // main part whichi we need to provide
+  firstName String @db.VarChar(50)
+  lastName String @db.VarChar(50)
+  email String @db.VarChar(50) @unique
+  moible String @db.VarChar(50)
+  password String @db.VarChar(50)
+  opt String @db.VarChar(50) @default("0")
+
+  // initiate relation
+  customers customers[]
+  categories categories[]
+  products products[]
+  invoices invoices[]
+  invoice_products invoice_products[]
+
+  // every table / model should have
+  createdAt DateTime @db.Timestamp(0) @default(now())
+  updatedAt DateTime @db.Timestamp(0) @default(now()) @updatedAt
+}
+
+model customers {
+  id Int @id @default(autoincrement())
+
+  name String @db.VarChar(50)
+  email String @db.VarChar(50)
+  mobile String @db.VarChar(50)
+
+  // relation initialization
+  invoices invoices[]
+
+  // relationship
+  user_id Int
+  // onDelete: Restrict, onUpdate: Cascade (relational condition )
+  users users @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  // every table / model should have
+  createdAt DateTime @db.Timestamp(0) @default(now())
+  updatedAt DateTime @db.Timestamp(0) @default(now()) @updatedAt
+}
+
+model categories {
+  id Int @id @default(autoincrement())
+
+  name String @db.VarChar(50)
+
+  // relation initialization
+  products products[]
+  
+  // relationship
+  user_id Int
+  // onDelete: Restrict, onUpdate: Cascade (relational condition )
+  users users @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+   // every table / model should have
+  createdAt DateTime @db.Timestamp(0) @default(now())
+  updatedAt DateTime @db.Timestamp(0) @default(now()) @updatedAt
+}
+
+
+model products {
+  id Int @id @default(autoincrement())
+
+  name String @db.VarChar(50)
+  price String @db.VarChar(50)
+  unit String @db.VarChar(50)
+
+  // relaiton initialization
+  invoice_products invoice_products[]
+  
+  // relationship
+  user_id Int
+  // onDelete: Restrict, onUpdate: Cascade (relational condition )
+  users users @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  category_id Int
+  categories categories @relation(fields: [category_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+   // every table / model should have
+  createdAt DateTime @db.Timestamp(0) @default(now())
+  updatedAt DateTime @db.Timestamp(0) @default(now()) @updatedAt
+}
+
+model invoices {
+  id Int @id @default(autoincrement())
+
+  total String @db.VarChar(50)
+  discount String @db.VarChar(50)
+  vat String @db.VarChar(50)
+  payable String @db.VarChar(50)
+
+  // relaiton initialization
+  invoice_products invoice_products[]
+
+   // relationship
+  user_id Int
+  // onDelete: Restrict, onUpdate: Cascade (relational condition )
+  users users @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  customer_id Int
+  customers customers @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  // every table / model should have
+  createdAt DateTime @db.Timestamp(0) @default(now())
+  updatedAt DateTime @db.Timestamp(0) @default(now())
+}
+
+model invoice_products {
+  id Int @id @default(autoincrement())
+
+  qty String @db.VarChar(50)
+  sale_price String @db.VarChar(50)
+
+  // relationship
+  user_id Int
+  // onDelete: Restrict, onUpdate: Cascade (relational condition )
+  users users @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  product_id Int
+  products products @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  invoice_id Int
+  invoices invoices @relation(fields: [invoice_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  // every table / model should have
+  createdAt DateTime @db.Timestamp(0) @default(now())
+  updatedAt DateTime @db.Timestamp(0) @default(now())
+}
